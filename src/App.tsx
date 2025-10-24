@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import MapView from "./components/MapView";
 import AssessBar from "./components/AssessBar";
 import HazardPanel from "./components/HazardPanel";
@@ -92,11 +92,9 @@ export default function App() {
   }
 
   return (
-    <div className="w-screen h-screen relative font-sans">
+    <div className="app-shell">
       <MapView styleUrl={STYLE_URL} center={[center.lon, center.lat]} zoom={11} onReady={onMapReady} />
-      {/* orange marker */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[70%] drop-shadow-lg pointer-events-none">
-        {/* (same SVG as your mock) */}
+      <div className="map-marker">
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M32 60c10.5-10.6 20-20.1 20-30A20 20 0 1 0 12 30c0 9.9 9.5 19.4 20 30z" fill="#F59E0B" stroke="#EA580C" strokeWidth="2"/>
           <circle cx="32" cy="28" r="12" fill="#fff"/><path d="M30 21l-4 9h6l-2 7 8-10h-6l3-6h-5z" fill="#F59E0B"/>
