@@ -62,6 +62,8 @@ export default function App() {
   async function assessHere() {
     const a = await fetchHazard(center.lat, center.lon);
     setAssessment(a);
+    setGmapsUrl(null);
+    setNavTarget(null);
   }
 
   function assessMyLocation() {
@@ -69,14 +71,17 @@ export default function App() {
     navigator.geolocation.getCurrentPosition(async pos=>{
       const a = await fetchHazard(pos.coords.latitude, pos.coords.longitude);
       setAssessment(a);
+      setGmapsUrl(null);
+      setNavTarget(null);
       mapRef.current?.easeTo({ center: [a.lon, a.lat], zoom: 15, duration: 800 });
     }, err => alert(err.message), { enableHighAccuracy:true, timeout: 10000 });
   }
 
   async function navigateToNearest() {
-    if (!assessment) return;
+    if (!assessment || !safeAreas.length) return;
     const origin: [number,number] = [assessment.lon, assessment.lat];
-    const best = await nearestByETA(origin, safeAreas) || nearestByDistance(origin, safeAreas, 1)[0];
+    const best = (await nearestByETA(origin, safeAreas)) || nearestByDistance(origin, safeAreas, 1)[0];
+    if (!best) return;
     setGmapsUrl(gmapsDirectionsUrl(assessment.lat, assessment.lon, best.coords, "walking"));
     setNavTarget(best.name);
     const geom = await osrmRoute(origin, best.coords);
@@ -110,6 +115,7 @@ export default function App() {
           gmapsHref={gmapsUrl}
           navTargetName={navTarget}
           onExplain={()=>setShowExplain(true)}
+          canNavigate={!!safeAreas.length}
         />
       )}
 
