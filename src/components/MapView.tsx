@@ -9,8 +9,16 @@ export default function MapView({ styleUrl, center, zoom, onReady }:{
   useEffect(() => {
     if (!ref.current) return;
     const map = initMap(ref.current, styleUrl, center, zoom);
-    map.on("load", ()=>onReady(map));
-    return () => map.remove();
+    map.on("load", () => {
+      map.resize();
+      onReady(map);
+    });
+    const onResize = () => map.resize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      map.remove();
+    };
   }, [styleUrl]);
-  return <div ref={ref} className="absolute inset-0" />;
+  return <div ref={ref} className="map-canvas" />;
 }
