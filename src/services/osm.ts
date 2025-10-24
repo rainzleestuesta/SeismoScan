@@ -1,5 +1,7 @@
 // src/services/osm.ts
-export async function fetchOpenAreasNCR() {
+export type SafeArea = { name: string; coords: [number, number] };
+
+export async function fetchOpenAreasNCR(): Promise<SafeArea[]> {
   const bbox = { s: 14.2, w: 120.9, n: 14.9, e: 121.2 };
   const q = `
 [out:json][timeout:25];
@@ -25,10 +27,10 @@ out center tags;`;
       });
       const data = await r.json();
       const elements = data?.elements ?? [];
-      return elements.flatMap((el: any) => {
+      return elements.flatMap((el: any): SafeArea[] => {
         const name = el?.tags?.name || el?.tags?.["name:en"] || el?.tags?.amenity || el?.tags?.leisure || "Open space";
-        if (el.type === "node" && el.lat && el.lon) return [{ name, coords: [el.lon, el.lat] as [number,number] }];
-        if (el.center?.lat && el.center?.lon) return [{ name, coords: [el.center.lon, el.center.lat] as [number,number] }];
+        if (el.type === "node" && el.lat && el.lon) return [{ name, coords: [el.lon, el.lat] }];
+        if (el.center?.lat && el.center?.lon) return [{ name, coords: [el.center.lon, el.center.lat] }];
         return [];
       });
     } catch {}
