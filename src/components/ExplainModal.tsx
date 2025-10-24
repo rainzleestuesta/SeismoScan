@@ -13,11 +13,17 @@ export default function ExplainModal({ assessment, onClose }:{
     { role:"assistant", text: initialExplanation(assessment) }
   ]);
 
-  const rerender = () => chatDiv.current && (chatDiv.current.innerHTML = messages.current.map(m =>
-    `<div class="mb-2 ${m.role==="assistant"?"text-gray-900":"text-gray-700"}">
-       <div class="text-xs text-gray-500 mb-0.5">${m.role==="assistant"?"Assistant":"You"}</div>
-       <div class="px-3 py-2 rounded-xl ${m.role==="assistant"?"bg-white shadow":"bg-indigo-50"}">${m.text}</div>
-     </div>`).join(""));
+  const rerender = () => {
+    if (!chatDiv.current) return;
+    chatDiv.current.innerHTML = messages.current
+      .map(m =>
+        `<div class="mb-2 ${m.role==="assistant"?"text-gray-900":"text-gray-700"}">
+           <div class="text-xs text-gray-500 mb-0.5">${m.role==="assistant"?"Assistant":"You"}</div>
+           <div class="px-3 py-2 rounded-xl ${m.role==="assistant"?"bg-white shadow":"bg-indigo-50"}">${m.text}</div>
+         </div>`
+      )
+      .join("");
+  };
 
   setTimeout(rerender, 0);
 
@@ -39,7 +45,7 @@ export default function ExplainModal({ assessment, onClose }:{
         </div>
         <div ref={chatDiv} className="mt-2 h-[380px] max-h-[60vh] overflow-y-auto rounded-xl border bg-gray-50 p-3" />
         <div className="mt-3 flex items-center gap-2">
-          <input ref={inputRef} onKeyDown={(e)=>{ if(e.key==="Enter"){ e.preventDefault(); send(); }}} placeholder="Ask about this site… e.g., 'how to be safe here?'" className="flex-1 border rounded-xl px-3 py-2" />
+          <input ref={inputRef} onKeyDown={(e: any)=>{ if(e.key==="Enter"){ e.preventDefault(); send(); }}} placeholder="Ask about this site… e.g., 'how to be safe here?'" className="flex-1 border rounded-xl px-3 py-2" />
           <button onClick={send} className="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">Send</button>
         </div>
         <div className="mt-2 text-[11px] text-gray-500">Responses are generated from your current on-screen assessment.</div>

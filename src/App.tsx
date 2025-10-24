@@ -6,7 +6,7 @@ import HazardPanel from "./components/HazardPanel";
 import ExplainModal from "./components/ExplainModal";
 import { DEFAULT_CENTER, fetchHazard } from "./services/hazard";
 import { loadFaultsGeoJSON } from "./services/faults";
-import { fetchOpenAreasNCR } from "./services/osm";
+import { fetchOpenAreasNCR, type SafeArea } from "./services/osm";
 import { gmapsDirectionsUrl, nearestByETA, nearestByDistance, osrmRoute, bearingFrom } from "./services/routing";
 
 const MAPTILER_KEY = import.meta.env.VITE_MAPTILER_KEY;
@@ -19,7 +19,7 @@ export default function App() {
   const mapRef = useRef<any>(null);
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [assessment, setAssessment] = useState<any>(null);
-  const [safeAreas, setSafeAreas] = useState<{name:string;coords:[number,number]}[]>([]);
+  const [safeAreas, setSafeAreas] = useState<SafeArea[]>([]);
   const [gmapsUrl, setGmapsUrl] = useState<string|null>(null);
   const [navTarget, setNavTarget] = useState<string|null>(null);
   const [showExplain, setShowExplain] = useState(false);
@@ -44,7 +44,14 @@ export default function App() {
 
     // safe areas
     fetchOpenAreasNCR().then(list=>{
-      const fc = { type:"FeatureCollection", features: list.map(s=>({type:"Feature",properties:{name:s.name},geometry:{type:"Point",coordinates:s.coords}}))};
+      const fc = {
+        type: "FeatureCollection",
+        features: list.map((s) => ({
+          type: "Feature",
+          properties: { name: s.name },
+          geometry: { type: "Point", coordinates: s.coords }
+        }))
+      };
       setSafeAreas(list);
       map.addSource("safe-src", { type:"geojson", data: fc });
       map.addLayer({ id:"safe-circles", type:"circle", source:"safe-src", paint:{ "circle-radius":5, "circle-color":"#10b981", "circle-stroke-color":"#065f46", "circle-stroke-width":1 }});
