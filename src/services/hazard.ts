@@ -19,6 +19,8 @@ export async function fetchHazard(lat: number, lon: number): Promise<HazardAsses
 }
 
 // moved from your canvas (unchanged math)
+type HazardLevel = "Low" | "Moderate" | "High";
+
 export function mockAssess(lat: number, lon: number): HazardAssessment {
   const seededNoise = (x: number, y: number) => {
     const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
@@ -29,13 +31,13 @@ export function mockAssess(lat: number, lon: number): HazardAssessment {
   const d2 = kmBetween([lon, lat], [121.2, 14.8]);
   const faultKm = Math.min(d1, d2);
   const pga = Math.min(0.6, 0.12 + 0.45 * n);
-  const pick = (v: number) => (v < 0.33 ? "Low" : v < 0.66 ? "Moderate" : "High") as const;
+  const pick = (v: number): HazardLevel => (v < 0.33 ? "Low" : v < 0.66 ? "Moderate" : "High");
   const liq = pick((n * 1.7) % 1);
   const eils = pick(((1 - n) * 1.3) % 1);
   const tsunami = lat < 15 && lon < 121.1 && lon > 120.8;
   const fFault = (dKm: number) => { const d0 = 1.0; const x = 1 - Math.exp(-d0 / Math.max(dKm, 1e-6)); return Math.max(0, Math.min(1, x)); };
   const fPga = (g: number) => Math.max(0, Math.min(1, g / 0.6));
-  const catScore = (lbl: "Low"|"Moderate"|"High") => (lbl === "High" ? 1 : lbl === "Moderate" ? 0.6 : 0.2);
+  const catScore = (lbl: HazardLevel) => (lbl === "High" ? 1 : lbl === "Moderate" ? 0.6 : 0.2);
   const val = 0.35*fFault(faultKm) + 0.30*fPga(pga) + 0.20*catScore(liq) + 0.15*catScore(eils) + 0.05*(tsunami?1:0);
   const shi = Math.round(100 * Math.max(0, Math.min(1, val)) * 10) / 10;
   const band = shi >= 66.7 ? "High" : shi >= 33.3 ? "Moderate" : "Low";
