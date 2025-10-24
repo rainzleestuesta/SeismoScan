@@ -34,7 +34,7 @@ export default function HazardPanel({
 
         <div className="mt-4 flex flex-col gap-2">
           <button onClick={onNavigate} className="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
-            Navigate the nearest open Area
+            Navigate to the nearest open area
           </button>
           <a
             onClick={!gmapsHref ? onNavigate : undefined}
