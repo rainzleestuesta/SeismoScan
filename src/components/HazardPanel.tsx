@@ -1,6 +1,6 @@
 // src/components/HazardPanel.tsx
-import { bandColor } from "../lib/geo";
-import type { HazardAssessment } from "../types/hazard";
+import { bandColor } from "../lib/geo"
+import type { HazardAssessment } from "../types/hazard"
 
 export default function HazardPanel({
   res,
@@ -8,107 +8,96 @@ export default function HazardPanel({
   gmapsHref,
   navTargetName,
   onExplain,
-  canNavigate
-}:{
-  res: HazardAssessment;
-  onNavigate: () => void;
-  gmapsHref?: string|null;
-  navTargetName?: string|null;
-  onExplain: () => void;
-  canNavigate: boolean;
+}: {
+  res: HazardAssessment
+  onNavigate: () => void
+  gmapsHref?: string | null
+  navTargetName?: string | null
+  onExplain: () => void
 }) {
+  const c = res.components
+  const color = bandColor(res.band)
+
   return (
     <div className="hazard-panel">
       <div className="hazard-card">
-        <div className="hazard-heading">Site Hazard Assessment</div>
-        <div className="hazard-score-row">
-          <div className="hazard-score">{res.shi.toFixed(1)}</div>
-          <div className="hazard-score-total">/ 100</div>
-          <span
-            className="hazard-band"
-            style={{
-              color: bandColor(res.band),
-              borderColor: bandColor(res.band),
-              background: `${bandColor(res.band)}20`
-            }}
-          >
-            {res.band} Risk
-          </span>
+        {/* Risk header */}
+        <div className="hazard-header" style={{ borderColor: color }}>
+          <div className="hazard-header-top">
+            <span className="hazard-label">SITE HAZARD INDEX</span>
+            <span className="hazard-band-pill" style={{ background: `${color}22`, color, borderColor: `${color}55` }}>
+              {res.band} Risk
+            </span>
+          </div>
+          <div className="hazard-score-row">
+            <span className="hazard-score" style={{ color }}>{res.shi.toFixed(1)}</span>
+            <span className="hazard-score-denom">/100</span>
+            <div className="hazard-score-bar-track">
+              <div className="hazard-score-bar-fill" style={{ width: `${res.shi}%`, background: color }} />
+            </div>
+          </div>
         </div>
 
-        <div className="hazard-divider" />
-        <div className="hazard-list">
-          <Row label="Fault distance" value={`${res.components.fault_km.toFixed(2)} km`} />
-          <Row label="Liquefaction" value={res.components.liquefaction} />
-          <Row label="ELS" value={res.components.eils} />
-          <Row label="Tsunami zone" value={res.components.tsunami ? "Yes" : "No"} />
+        {/* Metric rows */}
+        <div className="hazard-metrics">
+          <MetricRow icon="⚡" label="Fault Distance" value={`${c.fault_km.toFixed(2)} km`} />
+          <MetricRow icon="📳" label="Peak Ground Accel." value={`${c.pga_g.toFixed(3)} g`} />
+          <MetricRow icon="💧" label="Liquefaction" value={c.liquefaction} level={c.liquefaction} />
+          <MetricRow icon="🏗️" label="Intensity Level (EILS)" value={c.eils} level={c.eils} />
+          <MetricRow icon="🌊" label="Tsunami Zone" value={c.tsunami ? "Yes ⚠️" : "No"} />
         </div>
 
+        {/* Actions */}
         <div className="hazard-actions">
-          <button
-            onClick={onNavigate}
-            className="hazard-action-button primary"
-            type="button"
-            disabled={!canNavigate}
-          >
-            <span className="hazard-action-icon" aria-hidden>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 3L4 20.5L12 17L20 20.5L12 3Z"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-                <path d="M12 11.5V14.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                <circle cx="12" cy="9.5" r="1" fill="currentColor" />
-              </svg>
-            </span>
-            <span className="hazard-action-copy">
-              <span className="hazard-action-title">Navigate</span>
-              <span className="hazard-action-sub">Nearest open area</span>
-            </span>
+          <button onClick={onNavigate} className="btn btn-primary">
+            <span>🧭</span> Navigate to nearest open area
           </button>
-          {gmapsHref && (
-            <a
-              href={gmapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hazard-action-button secondary"
-            >
-              <span className="hazard-action-icon" aria-hidden>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M12 21C12 21 6 14.914 6 10.5C6 7.46243 8.46243 5 11.5 5C14.5376 5 17 7.46243 17 10.5C17 14.914 12 21 12 21Z"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinejoin="round"
-                  />
-                  <circle cx="12" cy="10.5" r="2.5" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
-              </span>
-              <span className="hazard-action-copy">
-                <span className="hazard-action-title">Open in Google Maps</span>
-                <span className="hazard-action-sub">
-                  {navTargetName ? navTargetName : "See route details"}
-                </span>
-              </span>
-            </a>
-          )}
-          <button onClick={onExplain} className="hazard-explain">Explain with AI</button>
+          <a
+            onClick={!gmapsHref ? onNavigate : undefined}
+            href={gmapsHref || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary"
+          >
+            <span>📍</span> {navTargetName ? `Open in Maps — ${navTargetName}` : "Open in Google Maps"}
+          </a>
+          <button onClick={onExplain} className="hazard-explain">
+            ✨ Explain with AI
+          </button>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-function Row({label, value}:{label:string; value:string}) {
+function MetricRow({
+  icon,
+  label,
+  value,
+  level,
+}: {
+  icon: string
+  label: string
+  value: string
+  level?: "Low" | "Moderate" | "High"
+}) {
+  const levelColor = level
+    ? level === "High"
+      ? "#ef4444"
+      : level === "Moderate"
+        ? "#f59e0b"
+        : "#10b981"
+    : undefined
+
   return (
-    <div className="hazard-row">
-      <div>
-        <div className="hazard-row-label">{label}</div>
-        <div className="hazard-row-value">{value}</div>
+    <div className="metric-row">
+      <span className="metric-icon">{icon}</span>
+      <div className="metric-text">
+        <div className="metric-label">{label}</div>
+        <div className="metric-value" style={levelColor ? { color: levelColor } : undefined}>
+          {value}
+        </div>
       </div>
-      <div className="hazard-row-icon">🛈</div>
     </div>
-  );
+  )
 }

@@ -1,6 +1,10 @@
 // src/components/AssessBar.tsx
-export default function AssessBar({ onHere, onMyLocation }:{
-  onHere: ()=>void; onMyLocation: ()=>void;
+export default function AssessBar({
+  onHere,
+  onMyLocation,
+}: {
+  onHere: () => void
+  onMyLocation: () => void
 }) {
   return (
     <div className="assess-bar">
@@ -11,5 +15,5 @@ export default function AssessBar({ onHere, onMyLocation }:{
         Assess map center
       </button>
     </div>
-  );
+  )
 }
