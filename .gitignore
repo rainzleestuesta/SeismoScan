@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Vite cache
+.vite/
+
+# Environment variables (keep .env.example if you have one)
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.suo
+*.user
+.vscode/settings.json
+
+# Test coverage
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
